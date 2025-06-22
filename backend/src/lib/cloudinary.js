@@ -10,4 +10,10 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
+
+cloudinary.uploader.upload('data:image/jpeg;base64,...', { resource_type: 'image' })
+  .then(res => console.log(res.secure_url))
+  .catch(err => console.log("Error:", err.message));
+
+
 export default cloudinary;

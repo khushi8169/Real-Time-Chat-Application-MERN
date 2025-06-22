@@ -37,22 +37,77 @@ export const getMessages = async (req, res) => {
 
 export const sendMessage = async (req, res) => {
   try {
-    const { text, image } = req.body;
+    const { text, image, video, audio, file, filename } = req.body;
     const { id: receiverId } = req.params;
     const senderId = req.user._id;
 
-    let imageUrl;
+    let imageUrl, videoUrl, audioUrl, fileUrl;
+
+    // Upload image if present
+    // if (image) {
+    //   const uploadResponse = await cloudinary.uploader.upload(image, {
+    //     resource_type: "image",
+    //   });
+    //   imageUrl = uploadResponse.secure_url;
+    // }
     if (image) {
-      // Upload base64 image to cloudinary
-      const uploadResponse = await cloudinary.uploader.upload(image);
-      imageUrl = uploadResponse.secure_url;
+  try {
+    if (!image.startsWith("data:image/")) {
+      throw new Error("Invalid image base64 format.");
     }
+    const uploadResponse = await cloudinary.uploader.upload(image, {
+      resource_type: "image",
+    });
+    imageUrl = uploadResponse.secure_url;
+  } catch (err) {
+    console.error("Cloudinary upload error:", err.message);
+    return res.status(400).json({ error: "Image upload failed: " + err.message });
+  }
+}
+
+
+    // Upload video if present
+    if (video) {
+      const uploadResponse = await cloudinary.uploader.upload(video, {
+        resource_type: "video",
+      });
+      videoUrl = uploadResponse.secure_url;
+    }
+
+    // Upload audio if present
+    if (audio) {
+      const uploadResponse = await cloudinary.uploader.upload(audio, {
+        resource_type: "video", // Cloudinary uses 'video' type for audio as well
+      });
+      audioUrl = uploadResponse.secure_url;
+    }
+
+    // Upload file if present
+    if (file) {
+      try {
+        console.log("Uploading file:", filename);
+        const safeFileName = filename?.replace(/[^a-zA-Z0-9-_]/g, "_");
+        const upload = await cloudinary.uploader.upload(file, {
+          resource_type: "raw",
+          public_id: safeFileName,
+        });
+        fileUrl = upload.secure_url;
+        console.log("File uploaded to:", fileUrl);
+      } catch (err) {
+        console.error("File upload error:", err.message);
+        return res.status(400).json({ error: "File upload failed: " + err.message });
+      }
+    }
+
 
     const newMessage = new Message({
       senderId,
       receiverId,
       text,
       image: imageUrl,
+      video: videoUrl,
+      audio: audioUrl,
+      file: fileUrl,
     });
 
     await newMessage.save();
@@ -64,7 +119,7 @@ export const sendMessage = async (req, res) => {
 
     res.status(201).json(newMessage);
   } catch (error) {
-    console.log("Error in sendMessage controller: ", error.message);
+    console.error("Error in sendMessage controller: ", error.message);
     res.status(500).json({ error: "Internal server error" });
   }
 };

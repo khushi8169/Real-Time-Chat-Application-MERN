@@ -72,6 +72,7 @@ const ChatContainer = () => {
               </time>
             </div>
             <div className="chat-bubble flex flex-col">
+              {/* Image Preview */}
               {message.image && (
                 <img
                   src={message.image}
@@ -79,7 +80,22 @@ const ChatContainer = () => {
                   className="sm:max-w-[200px] rounded-md mb-2"
                 />
               )}
+
+              {/* Text Message */}
               {message.text && <p>{message.text}</p>}
+
+              {/* File Link */}
+              {message.file && (
+                <a
+                href={message.file}
+                download={message.fileName || "file"}
+                className="mt-2 text-sm text-gray-700 hover:underline hover:text-blue-600"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                   Download File 
+                </a>
+              )}
             </div>
           </div>
         ))}
