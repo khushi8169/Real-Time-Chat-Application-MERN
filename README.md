@@ -30,7 +30,6 @@ A **Full Stack Realtime Chat App** with modern UI, real-time messaging, file sha
 | Auth         | JWT (JSON Web Token)            |
 | State        | Zustand                         |
 | File Storage | Cloudinary                      |
-| Deployment   | Vercel / Render / Railway       |
 | Dev Tools    | Postman, VS Code, Git, GitHub   |
 
 ---
